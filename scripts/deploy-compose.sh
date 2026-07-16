@@ -55,6 +55,8 @@ compose pull api worker
 compose up -d --wait --wait-timeout 180 db
 
 backup_path="${BACKUP_DIR}/pre-deploy-$(date -u +%Y%m%dT%H%M%SZ).dump"
+# Variables are expanded by sh inside the database container.
+# shellcheck disable=SC2016
 compose exec -T db sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' >"${backup_path}"
 printf 'database backup: %s\n' "${backup_path}"
 
