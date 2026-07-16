@@ -61,7 +61,9 @@ compose exec -T db sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' >"$
 printf 'database backup: %s\n' "${backup_path}"
 
 compose run --rm --no-deps api migrate
-compose up -d --no-build --wait --wait-timeout 180 api worker
+compose up -d --no-build --wait --wait-timeout 180 api
+compose up -d --no-build worker
+compose ps --status running --services | grep -qx worker
 curl --fail --silent --show-error "http://127.0.0.1:${HOST_PORT}/readyz" >/dev/null
 
 printf '%s\n' "${IMAGE}" >"${CURRENT_IMAGE_FILE}"

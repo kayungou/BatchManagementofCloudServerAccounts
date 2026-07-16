@@ -132,7 +132,10 @@ jobs:
           cache-from: type=gha,scope=container-ci
           cache-to: type=gha,mode=max,scope=container-ci
       - name: Start stack
-        run: docker compose up -d --no-build --wait --wait-timeout 180
+        run: |
+          docker compose up -d --no-build --wait --wait-timeout 180 db api
+          docker compose up -d --no-build worker
+          docker compose ps --status running --services | grep -qx worker
       - name: Check readiness
         run: curl --fail --silent --show-error http://127.0.0.1:8080/readyz
       - name: Show logs on failure
