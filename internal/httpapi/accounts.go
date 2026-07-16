@@ -10,10 +10,10 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/ikun/cloud-account-manager/internal/digitalocean"
-	"github.com/ikun/cloud-account-manager/internal/model"
-	"github.com/ikun/cloud-account-manager/internal/security"
-	"github.com/ikun/cloud-account-manager/internal/store"
+	"github.com/kayungou/BatchManagementofCloudServerAccounts/internal/digitalocean"
+	"github.com/kayungou/BatchManagementofCloudServerAccounts/internal/model"
+	"github.com/kayungou/BatchManagementofCloudServerAccounts/internal/security"
+	"github.com/kayungou/BatchManagementofCloudServerAccounts/internal/store"
 )
 
 func (s *Server) registerAccountRoutes(r chi.Router) {

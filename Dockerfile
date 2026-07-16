@@ -17,7 +17,7 @@ RUN go mod download
 COPY cmd/ ./cmd/
 COPY internal/ ./internal/
 RUN CGO_ENABLED=0 GOOS=linux go build -trimpath \
-    -ldflags="-s -w -X github.com/ikun/cloud-account-manager/internal/buildinfo.Version=${VERSION} -X github.com/ikun/cloud-account-manager/internal/buildinfo.Commit=${COMMIT} -X github.com/ikun/cloud-account-manager/internal/buildinfo.BuildTime=${BUILD_TIME}" \
+    -ldflags="-s -w -X github.com/kayungou/BatchManagementofCloudServerAccounts/internal/buildinfo.Version=${VERSION} -X github.com/kayungou/BatchManagementofCloudServerAccounts/internal/buildinfo.Commit=${COMMIT} -X github.com/kayungou/BatchManagementofCloudServerAccounts/internal/buildinfo.BuildTime=${BUILD_TIME}" \
     -o /out/cloudmanager ./cmd/cloudmanager
 
 FROM alpine:3.23 AS runtime

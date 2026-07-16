@@ -1,4 +1,4 @@
-module github.com/ikun/cloud-account-manager
+module github.com/kayungou/BatchManagementofCloudServerAccounts
 
 go 1.26
 

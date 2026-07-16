@@ -12,8 +12,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/ikun/cloud-account-manager/internal/model"
-	"github.com/ikun/cloud-account-manager/internal/store"
+	"github.com/kayungou/BatchManagementofCloudServerAccounts/internal/model"
+	"github.com/kayungou/BatchManagementofCloudServerAccounts/internal/store"
 )
 
 var dropletNamePattern = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9.-]{0,62}$`)

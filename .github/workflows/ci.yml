@@ -57,7 +57,7 @@ jobs:
         run: |
           build_time="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           go build -trimpath \
-            -ldflags "-X github.com/ikun/cloud-account-manager/internal/buildinfo.Version=ci -X github.com/ikun/cloud-account-manager/internal/buildinfo.Commit=${GITHUB_SHA} -X github.com/ikun/cloud-account-manager/internal/buildinfo.BuildTime=${build_time}" \
+            -ldflags "-X github.com/kayungou/BatchManagementofCloudServerAccounts/internal/buildinfo.Version=ci -X github.com/kayungou/BatchManagementofCloudServerAccounts/internal/buildinfo.Commit=${GITHUB_SHA} -X github.com/kayungou/BatchManagementofCloudServerAccounts/internal/buildinfo.BuildTime=${build_time}" \
             -o /tmp/cloudmanager ./cmd/cloudmanager
           /tmp/cloudmanager version
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -132,7 +132,10 @@ jobs:
           cache-from: type=gha,scope=container-ci
           cache-to: type=gha,mode=max,scope=container-ci
       - name: Start stack
-        run: docker compose up -d --no-build --wait --wait-timeout 180
+        run: |
+          docker compose up -d --no-build --wait --wait-timeout 180 db api
+          docker compose up -d --no-build worker
+          docker compose ps --status running --services | grep -qx worker
       - name: Check readiness
         run: curl --fail --silent --show-error http://127.0.0.1:8080/readyz
       - name: Show logs on failure

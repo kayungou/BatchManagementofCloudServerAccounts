@@ -1,21 +1,12 @@
 # GitHub 仓库发布指南
 
-本文说明首次上传、仓库保护和自动构建设置。项目当前模块路径为 `github.com/ikun/cloud-account-manager`；如果实际 GitHub 用户名或仓库名不同，必须在首次提交前同步修改 `go.mod`、Go import、徽章和安全报告链接。
+本文说明公开仓库、分支保护和自动构建设置。当前仓库为 `kayungou/BatchManagementofCloudServerAccounts`，Go module 为 `github.com/kayungou/BatchManagementofCloudServerAccounts`。
 
-## 1. 先决定仓库可见性与许可证
+## 1. 仓库与许可证
 
-建议先创建私有仓库，完成真实 DigitalOcean Token、SMTP 和生产部署验证后再公开。
+仓库为公开仓库，项目采用 `AGPL-3.0-only`。任何修改版本通过网络向用户提供功能时，都必须按 AGPL-3.0 要求提供对应源代码。
 
-公开仓库必须由项目所有者明确选择许可证：
-
-| 许可证 | 适用场景 |
-| --- | --- |
-| MIT | 最宽松，允许商业和闭源再分发 |
-| Apache-2.0 | 宽松，同时提供明确专利授权 |
-| AGPL-3.0 | 要求通过网络提供的修改版本公开对应源码 |
-| 专有授权 | 不允许未经许可复制、修改或部署 |
-
-不要直接复制整个目录到 GitHub 网页。应使用 Git CLI，让 `.gitignore` 排除 `.env.local`、构建产物和备份。
+必须保留 `LICENSE` 和版权声明。不要直接复制整个目录到 GitHub 网页；应使用 Git，让 `.gitignore` 排除 `.env.local`、构建产物和备份。
 
 ## 2. 首次提交前检查
 
@@ -32,21 +23,18 @@ find . -maxdepth 2 -type f -name '.env*' -print
 gitleaks detect --no-git --redact --source .
 ```
 
-## 3. 初始化并上传
+## 3. 克隆与远端检查
 
-安装并登录 GitHub CLI 后执行：
+安装并登录 GitHub CLI 后克隆：
 
 ```bash
-git init -b main
-git add .
-git status --short
-git diff --cached --check
-git commit -m "chore: initial project release"
 gh auth login
-gh repo create cloud-account-manager --private --source=. --remote=origin --push
+gh repo clone kayungou/BatchManagementofCloudServerAccounts
+cd BatchManagementofCloudServerAccounts
+git remote -v
 ```
 
-决定公开后可在 GitHub 仓库 Settings 中修改可见性。若需要立即创建公开仓库，将 `--private` 改为 `--public`，但应先添加所有者确认的 `LICENSE`。
+修改应从 `main` 创建独立分支，通过 Pull Request 合并。禁止强制推送受保护的 `main`。
 
 ## 4. 仓库设置
 
@@ -82,7 +70,7 @@ breaking-change good first issue help wanted dependencies
 
 ## 6. 首个版本
 
-完成许可证、`CHANGELOG.md` 和外部验证后：
+完成 `CHANGELOG.md`、CI 和外部验证后：
 
 ```bash
 git tag -a v0.1.0 -m "v0.1.0"
@@ -94,6 +82,6 @@ Release 工作流会发布：
 - `cloud-account-manager_0.1.0_linux_amd64.tar.gz`
 - `cloud-account-manager_0.1.0_linux_arm64.tar.gz`
 - `SHA256SUMS`
-- `ghcr.io/<owner>/<repo>:0.1.0` 等 OCI 镜像标签
+- `ghcr.io/kayungou/batchmanagementofcloudserveraccounts:0.1.0` 等 OCI 镜像标签
 
 发布与部署的详细约束见 [RELEASING.md](RELEASING.md) 和 [DEPLOYMENT.md](DEPLOYMENT.md)。

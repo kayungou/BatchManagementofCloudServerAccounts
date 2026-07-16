@@ -36,7 +36,7 @@ sudo -u deploy chmod 0600 /opt/cloud-account-manager/.env.production
 编辑 `.env.production`：
 
 ```dotenv
-APP_IMAGE=ghcr.io/owner/cloud-account-manager@sha256:...
+APP_IMAGE=ghcr.io/kayungou/batchmanagementofcloudserveraccounts@sha256:...
 APP_BASE_URL=https://cloud.example.com
 APP_PORT=8080
 POSTGRES_USER=cloudmanager
@@ -59,7 +59,7 @@ docker login ghcr.io
 
 ```bash
 cd /opt/cloud-account-manager
-./scripts/deploy-compose.sh 'ghcr.io/owner/cloud-account-manager@sha256:<digest>'
+./scripts/deploy-compose.sh 'ghcr.io/kayungou/batchmanagementofcloudserveraccounts@sha256:<digest>'
 ```
 
 脚本会串行完成：拉取镜像、启动 PostgreSQL、生成迁移前备份、执行迁移、更新 API/Worker，并检查 `/readyz`。部署失败不会自动回滚数据库。

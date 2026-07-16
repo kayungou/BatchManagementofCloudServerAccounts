@@ -12,7 +12,7 @@
 
 ## 报告漏洞
 
-不要通过公开 Issue、Discussion、Pull Request 或日志粘贴站点提交漏洞。请使用 GitHub 的[私有安全报告](https://github.com/ikun/cloud-account-manager/security/advisories/new)。如果仓库地址发生变化，请同步更新本链接。
+不要通过公开 Issue、Discussion、Pull Request 或日志粘贴站点提交漏洞。请使用 GitHub 的[私有安全报告](https://github.com/kayungou/BatchManagementofCloudServerAccounts/security/advisories/new)。如果仓库地址发生变化，请同步更新本链接。
 
 报告中请包含受影响版本、部署方式、复现步骤、影响范围和可行的缓解措施。所有 Token、密码、Cookie、`MASTER_KEY`、数据库 URL、IP 和个人信息都必须脱敏。
 
