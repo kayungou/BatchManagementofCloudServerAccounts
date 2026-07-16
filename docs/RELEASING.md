@@ -12,7 +12,7 @@
 
 ## 发布前检查
 
-1. 项目所有者已添加明确的 `LICENSE`。
+1. `LICENSE` 为项目确认的 GNU AGPL v3.0 正文。
 2. `CHANGELOG.md` 中的 `[Unreleased]` 已整理为本次版本。
 3. `make verify` 通过，CI 和 CodeQL 无阻塞问题。
 4. PostgreSQL 迁移已在生产数据副本上验证。
@@ -36,7 +36,7 @@ git push origin v0.1.0
 - 构建并推送带 SBOM/provenance 的 GHCR 多架构镜像。
 - 创建 GitHub Release 并生成发布说明。
 
-Release 工作流在缺少 `LICENSE` 时会主动失败，避免无许可证公开分发。
+Release 工作流在缺少或误改 AGPL-3.0 `LICENSE` 时会主动失败。
 
 ## 本地生成发布包
 

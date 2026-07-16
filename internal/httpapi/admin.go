@@ -12,9 +12,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/ikun/cloud-account-manager/internal/buildinfo"
-	"github.com/ikun/cloud-account-manager/internal/security"
-	"github.com/ikun/cloud-account-manager/internal/store"
+	"github.com/kayungou/BatchManagementofCloudServerAccounts/internal/buildinfo"
+	"github.com/kayungou/BatchManagementofCloudServerAccounts/internal/security"
+	"github.com/kayungou/BatchManagementofCloudServerAccounts/internal/store"
 )
 
 type optionalNullableInt struct {

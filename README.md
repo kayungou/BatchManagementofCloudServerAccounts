@@ -1,7 +1,7 @@
 # DigitalOcean 云服务器账号托管管理系统
 
-[![CI](https://github.com/ikun/cloud-account-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/ikun/cloud-account-manager/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/ikun/cloud-account-manager/actions/workflows/codeql.yml/badge.svg)](https://github.com/ikun/cloud-account-manager/actions/workflows/codeql.yml)
+[![CI](https://github.com/kayungou/BatchManagementofCloudServerAccounts/actions/workflows/ci.yml/badge.svg)](https://github.com/kayungou/BatchManagementofCloudServerAccounts/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/kayungou/BatchManagementofCloudServerAccounts/actions/workflows/codeql.yml/badge.svg)](https://github.com/kayungou/BatchManagementofCloudServerAccounts/actions/workflows/codeql.yml)
 
 这是一个面向多用户的 DigitalOcean 云资源托管后台。后端使用 Go，数据存储使用 PostgreSQL 18，管理端使用 React + TypeScript。系统把耗时的云资源操作放入 PostgreSQL 任务队列，由独立 Worker 执行并追踪结果。
 
@@ -149,7 +149,7 @@ COOKIE_SECURE=true
 - `vX.Y.Z` 标签：生成 Linux `amd64/arm64` 发布包、校验文件和 GHCR 多架构镜像。
 - 手工生产部署：使用 GitHub `production` Environment 审批后通过 SSH 部署指定镜像 digest。
 
-首次上传、分支保护和 Actions 设置见 [GitHub 仓库发布指南](docs/GITHUB.md)。正式 Release 会要求仓库已经添加由项目所有者确认的 `LICENSE`。
+仓库设置、分支保护和 Actions 说明见 [GitHub 仓库发布指南](docs/GITHUB.md)。正式 Release 会验证 AGPL-3.0 许可证文件存在。
 
 ## Ubuntu / Debian 安装
 
@@ -365,4 +365,6 @@ scripts/                初始化和安装脚本
 
 ## 许可证
 
-项目所有者尚未选择公开分发许可证。在添加 `LICENSE` 前，默认版权法适用，不能假定代码可被复制、修改或再分发。选择建议见 [GitHub 仓库发布指南](docs/GITHUB.md)。
+Copyright (C) 2026 kayungou。
+
+本项目采用 [GNU Affero General Public License v3.0](LICENSE)，SPDX 标识为 `AGPL-3.0-only`。修改后通过网络向用户提供本程序功能时，必须按许可证要求向这些用户提供对应源代码。

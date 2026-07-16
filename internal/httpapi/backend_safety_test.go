@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ikun/cloud-account-manager/internal/model"
-	"github.com/ikun/cloud-account-manager/internal/security"
+	"github.com/kayungou/BatchManagementofCloudServerAccounts/internal/model"
+	"github.com/kayungou/BatchManagementofCloudServerAccounts/internal/security"
 )
 
 func TestEnqueueDropletDeleteRejectsEmptySelectionBeforeStoreAccess(t *testing.T) {

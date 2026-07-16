@@ -16,13 +16,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ikun/cloud-account-manager/internal/buildinfo"
-	"github.com/ikun/cloud-account-manager/internal/config"
-	"github.com/ikun/cloud-account-manager/internal/database"
-	"github.com/ikun/cloud-account-manager/internal/httpapi"
-	"github.com/ikun/cloud-account-manager/internal/security"
-	"github.com/ikun/cloud-account-manager/internal/store"
-	"github.com/ikun/cloud-account-manager/internal/worker"
+	"github.com/kayungou/BatchManagementofCloudServerAccounts/internal/buildinfo"
+	"github.com/kayungou/BatchManagementofCloudServerAccounts/internal/config"
+	"github.com/kayungou/BatchManagementofCloudServerAccounts/internal/database"
+	"github.com/kayungou/BatchManagementofCloudServerAccounts/internal/httpapi"
+	"github.com/kayungou/BatchManagementofCloudServerAccounts/internal/security"
+	"github.com/kayungou/BatchManagementofCloudServerAccounts/internal/store"
+	"github.com/kayungou/BatchManagementofCloudServerAccounts/internal/worker"
 )
 
 func main() {

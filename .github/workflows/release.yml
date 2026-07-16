@@ -18,10 +18,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-      - name: Require an explicit license
+      - name: Verify AGPL-3.0 license
         run: |
-          if [[ ! -f LICENSE ]]; then
-            echo "Add the project owner-approved LICENSE before publishing a release."
+          if [[ ! -f LICENSE ]] || ! grep -q "GNU AFFERO GENERAL PUBLIC LICENSE" LICENSE; then
+            echo "A valid AGPL-3.0 LICENSE is required before publishing a release."
             exit 1
           fi
 

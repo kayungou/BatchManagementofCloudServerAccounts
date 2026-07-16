@@ -17,4 +17,4 @@
 
 - Argon2id 密码哈希、AES-256-GCM 凭据加密、数据库会话、CSRF、限流、近期密码验证和审计日志。
 
-[Unreleased]: https://github.com/ikun/cloud-account-manager/commits/main
+[Unreleased]: https://github.com/kayungou/BatchManagementofCloudServerAccounts/commits/main

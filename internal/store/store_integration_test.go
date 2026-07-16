@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/ikun/cloud-account-manager/internal/database"
-	"github.com/ikun/cloud-account-manager/internal/store"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/kayungou/BatchManagementofCloudServerAccounts/internal/database"
+	"github.com/kayungou/BatchManagementofCloudServerAccounts/internal/store"
 )
 
 func TestPostgreSQLStoreCriticalSemantics(t *testing.T) {

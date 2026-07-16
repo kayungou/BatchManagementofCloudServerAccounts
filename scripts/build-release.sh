@@ -35,7 +35,7 @@ trap 'rm -rf "${STAGE_ROOT}"' EXIT
 npm --prefix "${ROOT_DIR}/web" ci
 npm --prefix "${ROOT_DIR}/web" run build
 
-LDFLAGS="-s -w -X github.com/ikun/cloud-account-manager/internal/buildinfo.Version=${VERSION} -X github.com/ikun/cloud-account-manager/internal/buildinfo.Commit=${COMMIT} -X github.com/ikun/cloud-account-manager/internal/buildinfo.BuildTime=${BUILD_TIME}"
+LDFLAGS="-s -w -X github.com/kayungou/BatchManagementofCloudServerAccounts/internal/buildinfo.Version=${VERSION} -X github.com/kayungou/BatchManagementofCloudServerAccounts/internal/buildinfo.Commit=${COMMIT} -X github.com/kayungou/BatchManagementofCloudServerAccounts/internal/buildinfo.BuildTime=${BUILD_TIME}"
 PACKAGE_VERSION="${VERSION#v}"
 TARGETS=("linux/amd64" "linux/arm64")
 

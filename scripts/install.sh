@@ -309,7 +309,7 @@ SQL
 build_and_install_application() {
   local build_time ldflags
   build_time="${APP_BUILD_TIME_VALUE:-$(date -u +%Y-%m-%dT%H:%M:%SZ)}"
-  ldflags="-s -w -X github.com/ikun/cloud-account-manager/internal/buildinfo.Version=${APP_VERSION_VALUE} -X github.com/ikun/cloud-account-manager/internal/buildinfo.Commit=${APP_COMMIT_VALUE} -X github.com/ikun/cloud-account-manager/internal/buildinfo.BuildTime=${build_time}"
+  ldflags="-s -w -X github.com/kayungou/BatchManagementofCloudServerAccounts/internal/buildinfo.Version=${APP_VERSION_VALUE} -X github.com/kayungou/BatchManagementofCloudServerAccounts/internal/buildinfo.Commit=${APP_COMMIT_VALUE} -X github.com/kayungou/BatchManagementofCloudServerAccounts/internal/buildinfo.BuildTime=${build_time}"
   export PATH="${NODE_HOME}/bin:/usr/local/go/bin:${PATH}"
   (
     cd "${ROOT_DIR}/web"

@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
   - name: 私下报告安全漏洞
-    url: https://github.com/ikun/cloud-account-manager/security/advisories/new
+    url: https://github.com/kayungou/BatchManagementofCloudServerAccounts/security/advisories/new
     about: 不要在公开 Issue 中披露漏洞、Token、密码或其他敏感信息。

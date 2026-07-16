@@ -7,7 +7,7 @@ BINARY := bin/cloudmanager
 VERSION ?= dev
 COMMIT ?= unknown
 BUILD_TIME ?= unknown
-LDFLAGS := -X github.com/ikun/cloud-account-manager/internal/buildinfo.Version=$(VERSION) -X github.com/ikun/cloud-account-manager/internal/buildinfo.Commit=$(COMMIT) -X github.com/ikun/cloud-account-manager/internal/buildinfo.BuildTime=$(BUILD_TIME)
+LDFLAGS := -X github.com/kayungou/BatchManagementofCloudServerAccounts/internal/buildinfo.Version=$(VERSION) -X github.com/kayungou/BatchManagementofCloudServerAccounts/internal/buildinfo.Commit=$(COMMIT) -X github.com/kayungou/BatchManagementofCloudServerAccounts/internal/buildinfo.BuildTime=$(BUILD_TIME)
 
 .PHONY: help init build build-go build-web serve worker web-dev migrate admin keygen version test verify go-test typecheck fmt-check vet scripts-check release docker-init docker-up docker-down docker-logs docker-config install
 

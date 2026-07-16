@@ -2,6 +2,15 @@
   "name": "cloud-account-manager-web",
   "private": true,
   "version": "1.0.0",
+  "license": "AGPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kayungou/BatchManagementofCloudServerAccounts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kayungou/BatchManagementofCloudServerAccounts/issues"
+  },
+  "homepage": "https://github.com/kayungou/BatchManagementofCloudServerAccounts",
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
@@ -24,4 +33,3 @@
     "vite": "^7.0.0"
   }
 }
-

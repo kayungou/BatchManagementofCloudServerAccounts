@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/ikun/cloud-account-manager/internal/model"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/kayungou/BatchManagementofCloudServerAccounts/internal/model"
 )
 
 var ErrNotFound = errors.New("not found")
