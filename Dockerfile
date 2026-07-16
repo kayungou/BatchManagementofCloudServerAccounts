@@ -20,7 +20,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -trimpath \
     -ldflags="-s -w -X github.com/kayungou/BatchManagementofCloudServerAccounts/internal/buildinfo.Version=${VERSION} -X github.com/kayungou/BatchManagementofCloudServerAccounts/internal/buildinfo.Commit=${COMMIT} -X github.com/kayungou/BatchManagementofCloudServerAccounts/internal/buildinfo.BuildTime=${BUILD_TIME}" \
     -o /out/cloudmanager ./cmd/cloudmanager
 
-FROM alpine:3.23 AS runtime
+FROM alpine:3.24 AS runtime
 RUN apk add --no-cache ca-certificates tzdata \
     && addgroup -S -g 10001 cloudmanager \
     && adduser -S -D -H -u 10001 -G cloudmanager cloudmanager
