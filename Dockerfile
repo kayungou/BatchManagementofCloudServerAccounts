@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 
-FROM node:24-alpine AS frontend
+FROM node:26-alpine AS frontend
 WORKDIR /src/web
 COPY web/package*.json ./
 RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
