@@ -1,0 +1,83 @@
+name: cloud-account-manager
+
+x-app-environment: &app-environment
+  APP_ENV: production
+  LISTEN_ADDR: 0.0.0.0:8080
+  APP_BASE_URL: ${APP_BASE_URL:?APP_BASE_URL is required}
+  DATABASE_URL: postgres://${POSTGRES_USER:?POSTGRES_USER is required}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@db:5432/${POSTGRES_DB:-cloud_account_manager}?sslmode=disable
+  MASTER_KEY: ${MASTER_KEY:?MASTER_KEY is required}
+  COOKIE_NAME: ${COOKIE_NAME:-cloud_manager_session}
+  COOKIE_SECURE: "true"
+  SESSION_TTL: ${SESSION_TTL:-168h}
+  FRONTEND_DIR: /app/web/dist
+  DEV_EXPOSE_TOKENS: "false"
+  RUN_WORKER: "false"
+  WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-4}
+  WORKER_POLL_INTERVAL: ${WORKER_POLL_INTERVAL:-2s}
+  SYNC_INTERVAL: ${SYNC_INTERVAL:-5m}
+
+x-app-security: &app-security
+  read_only: true
+  security_opt:
+    - no-new-privileges:true
+  tmpfs:
+    - /tmp:size=16m,mode=1777
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: "5"
+
+services:
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-cloud_account_manager}
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    security_opt:
+      - no-new-privileges:true
+    stop_grace_period: 30s
+    logging: *default-logging
+
+  api:
+    image: ${APP_IMAGE:?APP_IMAGE is required}
+    restart: unless-stopped
+    init: true
+    command: ["serve"]
+    environment: *app-environment
+    ports:
+      - "127.0.0.1:${APP_PORT:-8080}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    <<: *app-security
+    stop_grace_period: 20s
+    logging: *default-logging
+
+  worker:
+    image: ${APP_IMAGE:?APP_IMAGE is required}
+    restart: unless-stopped
+    init: true
+    command: ["worker"]
+    environment: *app-environment
+    depends_on:
+      api:
+        condition: service_healthy
+    <<: *app-security
+    healthcheck:
+      disable: true
+    stop_grace_period: 30s
+    logging: *default-logging
+
+volumes:
+  postgres-data:

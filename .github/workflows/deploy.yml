@@ -1,0 +1,71 @@
+name: Deploy production
+
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: Full GHCR image tag or immutable digest
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy approved image
+    runs-on: ubuntu-24.04
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate deployment configuration
+        env:
+          APP_IMAGE: ${{ inputs.image }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+        run: |
+          [[ "${APP_IMAGE}" =~ ^ghcr\.io/[a-z0-9._-]+/[a-z0-9._/-]+(:[A-Za-z0-9._-]+|@sha256:[a-f0-9]{64})$ ]]
+          [[ "${DEPLOY_PATH}" =~ ^/[A-Za-z0-9._/-]+$ ]]
+          test -n "${DEPLOY_HOST}"
+          test -n "${DEPLOY_USER}"
+          test -n "${DEPLOY_SSH_KEY}"
+          test -n "${DEPLOY_KNOWN_HOSTS}"
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -d -m 0700 "${HOME}/.ssh"
+          printf '%s\n' "${DEPLOY_SSH_KEY}" >"${HOME}/.ssh/id_ed25519"
+          chmod 0600 "${HOME}/.ssh/id_ed25519"
+          printf '%s\n' "${DEPLOY_KNOWN_HOSTS}" >"${HOME}/.ssh/known_hosts"
+          chmod 0600 "${HOME}/.ssh/known_hosts"
+      - name: Upload deployment files
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+          DEPLOY_PORT: ${{ vars.DEPLOY_PORT || '22' }}
+        run: |
+          remote="${DEPLOY_USER}@${DEPLOY_HOST}"
+          ssh -o BatchMode=yes -p "${DEPLOY_PORT}" "${remote}" "mkdir -p '${DEPLOY_PATH}/deploy' '${DEPLOY_PATH}/scripts'"
+          scp -P "${DEPLOY_PORT}" deploy/docker-compose.production.yml "${remote}:${DEPLOY_PATH}/deploy/docker-compose.production.yml"
+          scp -P "${DEPLOY_PORT}" scripts/deploy-compose.sh "${remote}:${DEPLOY_PATH}/scripts/deploy-compose.sh"
+      - name: Deploy
+        env:
+          APP_IMAGE: ${{ inputs.image }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+          DEPLOY_PORT: ${{ vars.DEPLOY_PORT || '22' }}
+        run: |
+          remote="${DEPLOY_USER}@${DEPLOY_HOST}"
+          ssh -o BatchMode=yes -p "${DEPLOY_PORT}" "${remote}" \
+            "cd '${DEPLOY_PATH}' && chmod 0755 scripts/deploy-compose.sh && ./scripts/deploy-compose.sh '${APP_IMAGE}'"

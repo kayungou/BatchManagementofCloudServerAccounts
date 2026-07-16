@@ -1,0 +1,14 @@
+.env
+.env.local
+.env.production
+!.env.production.example
+.DS_Store
+.cache/
+bin/
+dist/
+coverage/
+node_modules/
+web/dist/
+*.tsbuildinfo
+backups/
+*.log

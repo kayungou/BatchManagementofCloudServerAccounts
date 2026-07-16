@@ -1,0 +1,42 @@
+[Unit]
+Description=Cloud Account Manager API
+Documentation=https://docs.digitalocean.com/reference/api/reference/
+Wants=network-online.target
+After=network-online.target postgresql.service
+
+[Service]
+Type=simple
+User=cloudmanager
+Group=cloudmanager
+WorkingDirectory=/opt/cloud-account-manager
+EnvironmentFile=/etc/cloud-account-manager/cloudmanager.env
+ExecStartPre=/usr/local/bin/cloudmanager migrate
+ExecStart=/usr/local/bin/cloudmanager serve
+Restart=on-failure
+RestartSec=5s
+TimeoutStartSec=90s
+TimeoutStopSec=20s
+KillSignal=SIGTERM
+UMask=0077
+
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+CapabilityBoundingSet=
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

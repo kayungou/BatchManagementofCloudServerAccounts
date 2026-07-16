@@ -1,0 +1,45 @@
+name: 功能建议
+description: 提议新的业务能力或改进
+title: "[Feature]: "
+labels: ["type:feature", "status:needs-triage"]
+body:
+  - type: textarea
+    id: scenario
+    attributes:
+      label: 业务场景
+      description: 谁会使用该功能，当前流程遇到了什么问题？
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 建议方案
+      description: 描述期望的界面、API 和操作流程。
+    validations:
+      required: true
+  - type: textarea
+    id: permissions
+    attributes:
+      label: 权限与安全影响
+      description: 是否涉及管理员权限、近期密码验证、凭据、审计或不可逆操作？
+    validations:
+      required: true
+  - type: textarea
+    id: provider
+    attributes:
+      label: DigitalOcean API 依赖
+      description: 如适用，请附官方 API 文档链接、限流或兼容性说明。
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 替代方案
+      description: 目前如何绕过该问题？
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: 范围确认
+      options:
+        - label: 我理解当前版本只支持 DigitalOcean。
+          required: true
+        - label: 我已搜索现有 Issue，未发现相同建议。
+          required: true
