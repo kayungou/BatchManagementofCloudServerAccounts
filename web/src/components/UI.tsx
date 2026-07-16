@@ -18,10 +18,10 @@ export function EmptyState({ title, action }: { title: string; action?: ReactNod
   return <div className="empty-state"><Inbox size={28}/><strong>{title}</strong>{action}</div>
 }
 
-export function ErrorNotice({ error }: { error: unknown }) {
+export function ErrorNotice({ error, details }: { error: unknown; details?: string }) {
   if (!error) return null
   const message = error instanceof Error ? error.message : String(error)
-  return <div className="notice error"><AlertTriangle size={18}/><span>{message}</span></div>
+  return <div className="notice error"><AlertTriangle size={18}/><span>{message}{details&&<small className="block">{details}</small>}</span></div>
 }
 
 export function SuccessNotice({ message }: { message?: string }) {

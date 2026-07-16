@@ -172,6 +172,47 @@ func TestPostgreSQLStoreCriticalSemantics(t *testing.T) {
 	}
 }
 
+func TestUpdateJobStoresEmptyProviderActionIDsForNilSlice(t *testing.T) {
+	dataStore := newIntegrationStore(t)
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+
+	user, err := dataStore.CreateUser(ctx, "job-update@example.com", "test-hash", "user", "active")
+	if err != nil {
+		t.Fatalf("CreateUser: %v", err)
+	}
+	job, err := dataStore.EnqueueJob(ctx, user.ID, nil, "sync_account", map[string]any{"account_id": uuid.New()})
+	if err != nil {
+		t.Fatalf("EnqueueJob: %v", err)
+	}
+	claimed, err := dataStore.ClaimJob(ctx)
+	if err != nil {
+		t.Fatalf("ClaimJob: %v", err)
+	}
+	if claimed.ID != job.ID {
+		t.Fatalf("claimed job ID = %s, want %s", claimed.ID, job.ID)
+	}
+
+	result := map[string]any{"droplets": 3}
+	if err := dataStore.UpdateJob(ctx, job.ID, "succeeded", 100, result, nil, nil); err != nil {
+		t.Fatalf("UpdateJob with nil provider action IDs: %v", err)
+	}
+
+	var state string
+	var progress int
+	var providerActionIDs []int64
+	var finishedAt *time.Time
+	var droplets int
+	if err := dataStore.Pool.QueryRow(ctx, `SELECT state,progress,provider_action_ids,finished_at,(result->>'droplets')::int
+		FROM jobs WHERE id=$1`, job.ID).Scan(&state, &progress, &providerActionIDs, &finishedAt, &droplets); err != nil {
+		t.Fatalf("read updated job: %v", err)
+	}
+	if state != "succeeded" || progress != 100 || providerActionIDs == nil || len(providerActionIDs) != 0 || finishedAt == nil || droplets != 3 {
+		t.Fatalf("updated job = state %q, progress %d, action IDs %#v, finished_at %v, droplets %d",
+			state, progress, providerActionIDs, finishedAt, droplets)
+	}
+}
+
 func newIntegrationStore(t *testing.T) *store.Store {
 	t.Helper()
 	databaseURL := strings.TrimSpace(os.Getenv("TEST_DATABASE_URL"))

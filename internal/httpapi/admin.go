@@ -291,6 +291,7 @@ func (s *Server) adminTestSMTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := s.sendEmail(r, input.To, "SMTP 测试", "云服务器托管平台 SMTP 配置测试成功。"); err != nil {
+		s.logger.Warn("SMTP test failed", "to", input.To, "error", err, "request_id", requestID(r.Context()))
 		writeError(w, r, http.StatusBadGateway, "smtp_test_failed", "测试邮件发送失败", err.Error())
 		return
 	}

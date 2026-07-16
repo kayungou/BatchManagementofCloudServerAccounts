@@ -111,7 +111,9 @@ func (w *Worker) ProcessNext(ctx context.Context) error {
 		if state == "" {
 			state = "failed"
 		}
-		_ = w.store.UpdateJob(context.WithoutCancel(ctx), job.ID, state, 100, result, actionIDs, &message)
+		if updateErr := w.store.UpdateJob(context.WithoutCancel(ctx), job.ID, state, 100, result, actionIDs, &message); updateErr != nil {
+			return fmt.Errorf("job %s (%s): %w", job.ID, job.Kind, errors.Join(processErr, fmt.Errorf("persist failed job state: %w", updateErr)))
+		}
 		return fmt.Errorf("job %s (%s): %w", job.ID, job.Kind, processErr)
 	}
 	if state == "" {
