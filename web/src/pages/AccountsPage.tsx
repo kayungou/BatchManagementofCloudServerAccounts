@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, Cloud, Copy, KeyRound, Link2, Pencil, Plus, RefreshCw, ShieldCheck, Trash2, UserRoundCog } from 'lucide-react'
 import { api, formatDate, formatMoney, json } from '../api'
+import { digitalOceanStatusMessageLabel } from '../labels'
 import type { CloudAccount, ListResponse, MeResponse, SSHKey, User } from '../types'
 import { EmptyState, ErrorNotice, Modal, Page, PageHeader, ReauthFields, Spinner, StatusBadge, SuccessNotice, reauthenticate } from '../components/UI'
 
@@ -24,7 +25,7 @@ export default function AccountsPage() {
       <tbody>{accounts.data.items.map(account => <tr key={account.id}>
         <td><div className="cell-primary"><span className="provider-mark">DO</span><span><strong>{account.name}</strong><small>{account.provider_email || account.provider_account_id || account.id.slice(0,8)}</small></span></div></td>
         <td><StatusBadge value={account.credential_status}/></td>
-        <td><StatusBadge value={account.provider_status}/>{account.last_error && <small className="danger-text block">{account.last_error}</small>}</td>
+        <td><StatusBadge value={account.provider_status}/>{account.status_message && <small className="block">{digitalOceanStatusMessageLabel(account.status_message)}</small>}{account.last_error && <small className="danger-text block">{account.last_error}</small>}</td>
         <td><strong>{formatMoney(account.account_balance, account.currency)}</strong><small className="block">用量 {formatMoney(account.month_to_date_usage, account.currency)}</small></td>
         <td>{account.account_limits?.droplet_limit ?? '未同步'}</td>
         <td>{formatDate(account.last_synced_at)}</td>
@@ -104,7 +105,7 @@ export function AccountDetailPage() {
     <SuccessNotice message={message}/><ErrorNotice error={actionError||sync.error}/>
     <section className="detail-grid account-detail-grid">
       <div className="panel"><div className="section-heading"><h2>账号状态</h2><StatusBadge value={item.credential_status}/></div><dl className="detail-list">
-        <div><dt>DigitalOcean 状态</dt><dd><StatusBadge value={item.provider_status}/></dd></div><div><dt>Team ID</dt><dd className="mono">{item.provider_account_id||'未同步'}</dd></div><div><dt>账号邮箱</dt><dd>{item.provider_email||'未同步'}</dd></div><div><dt>API 剩余额度</dt><dd>{item.rate_limit_remaining??'未同步'}</dd></div><div><dt>最后同步</dt><dd>{formatDate(item.last_synced_at)}</dd></div>
+        <div><dt>DigitalOcean 状态</dt><dd><StatusBadge value={item.provider_status}/></dd></div><div><dt>状态说明</dt><dd>{item.status_message?digitalOceanStatusMessageLabel(item.status_message):'无'}</dd></div><div><dt>Team ID</dt><dd className="mono">{item.provider_account_id||'未同步'}</dd></div><div><dt>账号邮箱</dt><dd>{item.provider_email||'未同步'}</dd></div><div><dt>API 剩余额度</dt><dd>{item.rate_limit_remaining??'未同步'}</dd></div><div><dt>最后同步</dt><dd>{formatDate(item.last_synced_at)}</dd></div>
       </dl>{item.last_error&&<div className="notice error compact">{item.last_error}</div>}</div>
       <div className="panel"><div className="section-heading"><h2>账单与配额</h2></div><dl className="detail-list">
         <div><dt>余额</dt><dd>{formatMoney(item.account_balance,item.currency)}</dd></div><div><dt>本月用量</dt><dd>{formatMoney(item.month_to_date_usage,item.currency)}</dd></div><div><dt>本月至今余额</dt><dd>{formatMoney(item.month_to_date_balance,item.currency)}</dd></div><div><dt>Droplet 上限</dt><dd>{item.account_limits?.droplet_limit??'未同步'}</dd></div><div><dt>Reserved IP 上限</dt><dd>{item.account_limits?.floating_ip_limit??'未同步'}</dd></div>

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, Inbox, LoaderCircle, X } from 'lucide-react'
 import { api, json } from '../api'
+import { statusLabel } from '../labels'
 
 export function Page({ children }: { children: ReactNode }) {
   return <div className="page">{children}</div>
@@ -28,15 +29,9 @@ export function SuccessNotice({ message }: { message?: string }) {
   return message ? <div className="notice success"><CheckCircle2 size={18}/><span>{message}</span></div> : null
 }
 
-const statusLabels: Record<string, string> = {
-  active: '正常', pending: '待验证', disabled: '已停用', valid: '有效', invalid: '无效', insufficient: '权限不足', unverified: '待验证',
-  new: '创建中', off: '已关机', archive: '已归档', queued: '排队中', running: '执行中', succeeded: '已完成', failed: '失败', partial: '部分完成',
-  completed: '已完成', errored: '失败', in_progress: '进行中', stale: '需更新', revoked: '已撤销', none: '未托管',
-}
-
 export function StatusBadge({ value }: { value?: string }) {
   const normalized = value || 'unknown'
-  return <span className={`status-badge status-${normalized.replaceAll('_', '-')}`}><span/>{statusLabels[normalized] || normalized}</span>
+  return <span className={`status-badge status-${normalized.replaceAll('_', '-')}`}><span/>{statusLabel(normalized)}</span>
 }
 
 export function Modal({ title, children, onClose, wide = false }: { title: string; children: ReactNode; onClose: () => void; wide?: boolean }) {
