@@ -526,6 +526,9 @@ func (s *Store) UpdateJob(ctx context.Context, id uuid.UUID, state string, progr
 	if err != nil {
 		return err
 	}
+	if actionIDs == nil {
+		actionIDs = []int64{}
+	}
 	_, err = s.Pool.Exec(ctx, `UPDATE jobs SET state=$2,progress=$3,result=$4,provider_action_ids=$5,error_message=$6,
 		finished_at=CASE WHEN $2 IN ('succeeded','failed','partial') THEN now() ELSE finished_at END,updated_at=now() WHERE id=$1`,
 		id, state, progress, encoded, actionIDs, message)

@@ -1,10 +1,12 @@
 package httpapi
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"net/mail"
 	"net/smtp"
@@ -285,17 +287,49 @@ type smtpSetting struct {
 	StartTLS bool   `json:"starttls"`
 }
 
+const (
+	smtpConnectTimeout   = 10 * time.Second
+	smtpIOTimeout        = 15 * time.Second
+	smtpOperationTimeout = 45 * time.Second
+)
+
+type smtpTransport struct {
+	address        string
+	host           string
+	implicitTLS    bool
+	startTLS       bool
+	tlsConfig      *tls.Config
+	connectTimeout time.Duration
+	ioTimeout      time.Duration
+}
+
+func smtpTransportFor(setting smtpSetting) smtpTransport {
+	implicitTLS := setting.Port == 465
+	return smtpTransport{
+		address:     net.JoinHostPort(setting.Host, strconv.Itoa(setting.Port)),
+		host:        setting.Host,
+		implicitTLS: implicitTLS,
+		startTLS:    setting.StartTLS && !implicitTLS,
+		tlsConfig: &tls.Config{
+			ServerName: setting.Host,
+			MinVersion: tls.VersionTLS12,
+		},
+		connectTimeout: smtpConnectTimeout,
+		ioTimeout:      smtpIOTimeout,
+	}
+}
+
 func (s *Server) sendEmail(r *http.Request, to, subject, body string) error {
 	if !validEmail(to) {
 		return errors.New("invalid recipient email")
 	}
 	value, ciphertext, nonce, err := s.store.GetSetting(r.Context(), "smtp")
 	if err != nil {
-		return err
+		return fmt.Errorf("读取 SMTP 配置失败: %w", err)
 	}
 	var setting smtpSetting
 	if err := json.Unmarshal(value, &setting); err != nil {
-		return err
+		return fmt.Errorf("解析 SMTP 配置失败: %w", err)
 	}
 	if setting.Host == "" || setting.From == "" {
 		s.logger.Info("development email", "to", to, "subject", subject, "body", body)
@@ -305,43 +339,114 @@ func (s *Server) sendEmail(r *http.Request, to, subject, body string) error {
 	if len(ciphertext) > 0 {
 		plaintext, decryptErr := s.security.Decrypt(ciphertext, nonce, "smtp_password")
 		if decryptErr != nil {
-			return decryptErr
+			return fmt.Errorf("解密 SMTP 密码失败: %w", decryptErr)
 		}
 		password = string(plaintext)
 	}
-	address := setting.Host + ":" + strconv.Itoa(setting.Port)
 	message := []byte("From: " + setting.From + "\r\n" + "To: " + to + "\r\n" + "Subject: " + subject + "\r\n" +
 		"MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n" + body)
-	auth := smtp.PlainAuth("", setting.Username, password, setting.Host)
-	client, err := smtp.Dial(address)
+	ctx, cancel := context.WithTimeout(r.Context(), smtpOperationTimeout)
+	defer cancel()
+	return deliverSMTP(ctx, smtpTransportFor(setting), setting, password, to, message)
+}
+
+func deliverSMTP(ctx context.Context, transport smtpTransport, setting smtpSetting, password, to string, message []byte) error {
+	dialer := net.Dialer{Timeout: transport.connectTimeout}
+	conn, err := dialer.DialContext(ctx, "tcp", transport.address)
 	if err != nil {
+		return fmt.Errorf("SMTP 连接失败: %w", err)
+	}
+	defer conn.Close()
+	stopContextClose := context.AfterFunc(ctx, func() { _ = conn.Close() })
+	defer stopContextClose()
+
+	setDeadline := func(stage string) error {
+		deadline := time.Now().Add(transport.ioTimeout)
+		if contextDeadline, ok := ctx.Deadline(); ok && contextDeadline.Before(deadline) {
+			deadline = contextDeadline
+		}
+		if err := conn.SetDeadline(deadline); err != nil {
+			return fmt.Errorf("SMTP %s超时设置失败: %w", stage, err)
+		}
+		return nil
+	}
+	stageError := func(stage string, err error) error {
+		if contextErr := ctx.Err(); contextErr != nil {
+			return fmt.Errorf("SMTP %s失败: %w", stage, contextErr)
+		}
+		return fmt.Errorf("SMTP %s失败: %w", stage, err)
+	}
+
+	if transport.implicitTLS {
+		if err := setDeadline("TLS 握手"); err != nil {
+			return err
+		}
+		tlsConn := tls.Client(conn, transport.tlsConfig)
+		if err := tlsConn.HandshakeContext(ctx); err != nil {
+			return stageError("TLS 握手", err)
+		}
+		conn = tlsConn
+	}
+	if err := setDeadline("服务问候"); err != nil {
 		return err
 	}
+	client, err := smtp.NewClient(conn, transport.host)
+	if err != nil {
+		return stageError("服务问候", err)
+	}
 	defer client.Close()
-	if setting.StartTLS {
-		if err := client.StartTLS(&tls.Config{ServerName: setting.Host, MinVersion: tls.VersionTLS12}); err != nil {
+
+	if transport.startTLS {
+		if err := setDeadline("STARTTLS 升级"); err != nil {
 			return err
+		}
+		if err := client.StartTLS(transport.tlsConfig); err != nil {
+			return stageError("STARTTLS 升级", err)
 		}
 	}
 	if setting.Username != "" {
-		if err := client.Auth(auth); err != nil {
+		if err := setDeadline("认证"); err != nil {
 			return err
 		}
+		auth := smtp.PlainAuth("", setting.Username, password, transport.host)
+		if err := client.Auth(auth); err != nil {
+			return stageError("认证", err)
+		}
+	}
+	if err := setDeadline("发件人校验"); err != nil {
+		return err
 	}
 	if err := client.Mail(setting.From); err != nil {
+		return stageError("发件人校验", err)
+	}
+	if err := setDeadline("收件人校验"); err != nil {
 		return err
 	}
 	if err := client.Rcpt(to); err != nil {
+		return stageError("收件人校验", err)
+	}
+	if err := setDeadline("DATA 命令"); err != nil {
 		return err
 	}
 	writer, err := client.Data()
 	if err != nil {
+		return stageError("DATA 命令", err)
+	}
+	if err := setDeadline("正文写入"); err != nil {
+		_ = writer.Close()
 		return err
 	}
 	if _, err := writer.Write(message); err != nil {
+		return stageError("正文写入", err)
+	}
+	if err := setDeadline("投递确认"); err != nil {
+		_ = writer.Close()
 		return err
 	}
-	return writer.Close()
+	if err := writer.Close(); err != nil {
+		return stageError("投递确认", err)
+	}
+	return nil
 }
 
 func validEmail(email string) bool {
@@ -375,5 +480,4 @@ func sessionTTLFromSetting(value []byte, fallback time.Duration) time.Duration {
 	return time.Duration(setting.Hours) * time.Hour
 }
 
-var _ = fmt.Sprintf
 var _ = store.ErrNotFound
