@@ -7,7 +7,7 @@ RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 COPY web/ ./
 RUN npm run build
 
-FROM golang:1.26-alpine AS backend
+FROM golang:1.27-alpine AS backend
 WORKDIR /src
 ARG VERSION=dev
 ARG COMMIT=unknown
